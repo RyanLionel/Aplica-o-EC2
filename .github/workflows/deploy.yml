@@ -11,22 +11,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Copy to EC2
-        uses: appleboy/scp-action@v0.1.6
+      - name: Copy project to EC2
+        uses: appleboy/scp-action@v0.1.8
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
+          username: ${{ secrets.EC2_USER }}   # ubuntu, ec2-user, admin, etc
+          key: ${{ secrets.EC2_SSH_KEY }}     # chave privada COMPLETA
           source: "."
-        
+          target: "/home/${{ secrets.EC2_USER }}/app"
 
-      - name: Run remote deploy
+      - name: Deploy on EC2
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            cd ~/app
             docker-compose down || true
             docker-compose build
             docker-compose up -d
